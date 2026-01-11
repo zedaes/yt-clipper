@@ -37,7 +37,7 @@ struct Chapter {
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    println!("YT-Clipper - YouTube Video Chapter Splitter\n");
+    println!("yt-clipper\n");
 
     check_dependency("yt-dlp")?;
     check_dependency("ffmpeg")?;
