@@ -62,10 +62,8 @@ fn main() -> Result<()> {
     let sanitized_title = sanitize(&video_info.title);
     let output_dir = PathBuf::from(".").join(&sanitized_title);
     let clips_dir = output_dir.join("clips");
-    let formats_dir = output_dir.join("formats");
 
     fs::create_dir_all(&clips_dir).context("Failed to create clips directory")?;
-    fs::create_dir_all(&formats_dir).context("Failed to create formats directory")?;
 
     println!("Output directory: {}\n", output_dir.display());
 
@@ -77,6 +75,8 @@ fn main() -> Result<()> {
 
     if args.formats {
         println!("\nGenerating format variants...\n");
+        let formats_dir = output_dir.join("formats");
+        fs::create_dir_all(&formats_dir).context("Failed to create formats directory")?;
         generate_format_variants(&video_path, &chapters, &formats_dir)?;
     }
 
@@ -88,6 +88,7 @@ fn main() -> Result<()> {
     println!("\nDone! All clips saved to: {}", output_dir.display());
     println!("  - Original clips: {}", clips_dir.display());
     if args.formats {
+        let formats_dir = output_dir.join("formats");
         println!("  - Format variants: {}", formats_dir.display());
     }
 
