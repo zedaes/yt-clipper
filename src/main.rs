@@ -18,7 +18,7 @@ struct Args {
     keep_full: bool,
 
     #[arg(short, long)]
-    skip_formats: bool,
+    formats: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -42,8 +42,10 @@ fn main() -> Result<()> {
     check_dependency("yt-dlp")?;
     check_dependency("ffmpeg")?;
 
+    let cleaned_url = clean_url(&args.url);
+
     println!("Fetching video information...");
-    let video_info = get_video_info(&args.url)?;
+    let video_info = get_video_info(&cleaned_url)?;
 
     println!("Video: {}", video_info.title);
 
@@ -67,13 +69,13 @@ fn main() -> Result<()> {
 
     println!("Output directory: {}\n", output_dir.display());
 
-    let video_path = download_video(&args.url, &output_dir)?;
+    let video_path = download_video(&cleaned_url, &output_dir)?;
 
     println!("\nSplitting video into chapters...\n");
 
     split_video_into_chapters(&video_path, &chapters, &clips_dir)?;
 
-    if !args.skip_formats {
+    if args.formats {
         println!("\nGenerating format variants...\n");
         generate_format_variants(&video_path, &chapters, &formats_dir)?;
     }
@@ -85,11 +87,17 @@ fn main() -> Result<()> {
 
     println!("\nDone! All clips saved to: {}", output_dir.display());
     println!("  - Original clips: {}", clips_dir.display());
-    if !args.skip_formats {
+    if args.formats {
         println!("  - Format variants: {}", formats_dir.display());
     }
 
     Ok(())
+}
+
+fn clean_url(url: &str) -> String {
+    url.replace("\\?", "?")
+        .replace("\\=", "=")
+        .replace("\\&", "&")
 }
 
 fn check_dependency(name: &str) -> Result<()> {
